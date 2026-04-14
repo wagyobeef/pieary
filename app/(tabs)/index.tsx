@@ -8,6 +8,7 @@ import { JournalInput } from '@/screens/journal/JournalInput';
 import { DateBar } from '@/screens/journal/DateBar';
 import { PieChecker } from '@/screens/journal/PieChecker';
 import { CrumbList, type Crumb } from '@/screens/journal/CrumbList';
+import { CrumbImage } from '@/screens/journal/CrumbImage';
 import { useThemeColor } from '@/hooks/use-theme-color';
 
 export default function HomeScreen() {
@@ -38,6 +39,7 @@ export default function HomeScreen() {
           <ThemedView style={[styles.content, { backgroundColor }]}>
             <PieChecker />
             <CrumbList crumbs={crumbs} />
+            {crumbs.length > 0 && <CrumbImage />}
           </ThemedView>
         </TouchableWithoutFeedback>
       </ScrollView>

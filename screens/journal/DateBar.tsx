@@ -11,11 +11,11 @@ export function DateBar() {
     "background",
   );
   const textColor = useThemeColor(
-    { light: "#000000", dark: "#ffffff" },
+    { light: "#5a4a3a", dark: "#ffffff" },
     "text",
   );
   const chevronColor = useThemeColor(
-    { light: "#007AFF", dark: "#0a84ff" },
+    { light: "#5a4a3a", dark: "#d4a574" },
     "text",
   );
 
@@ -84,7 +84,7 @@ export function DateBar() {
         onPress={handlePreviousDay}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <IconSymbol name="chevron.left" size={18} color={chevronColor} />
+        <IconSymbol name="chevron.left" size={22} color={chevronColor} />
       </TouchableOpacity>
 
       <TouchableOpacity onPress={handleTodayPress} disabled={isToday()}>
@@ -101,7 +101,7 @@ export function DateBar() {
         onPress={handleNextDay}
         hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
       >
-        <IconSymbol name="chevron.right" size={18} color={chevronColor} />
+        <IconSymbol name="chevron.right" size={22} color={chevronColor} />
       </TouchableOpacity>
     </View>
   );
@@ -113,9 +113,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     paddingHorizontal: 20,
-    paddingVertical: 8,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "#c6c6c8",
+    paddingTop: 8,
+    paddingBottom: 4,
   },
   chevronButton: {
     padding: 8,

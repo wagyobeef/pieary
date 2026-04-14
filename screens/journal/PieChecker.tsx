@@ -1,12 +1,18 @@
-import React, { useState } from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import Svg, { Circle, Path, G } from 'react-native-svg';
-import { useThemeColor } from '@/hooks/use-theme-color';
-import { IconSymbol } from '@/components/ui/icon-symbol';
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import { useThemeColor } from "@/hooks/use-theme-color";
+import React, { useState } from "react";
+import { StyleSheet, View } from "react-native";
+import Svg, { G, Path } from "react-native-svg";
 
 export function PieChecker() {
-  const crustColor = useThemeColor({ light: '#d4a574', dark: '#5a4a3a' }, 'background');
-  const dividerColor = useThemeColor({ light: '#d4a574', dark: '#5a4a3a' }, 'background');
+  const crustColor = useThemeColor(
+    { light: "#d4a574", dark: "#5a4a3a" },
+    "background",
+  );
+  const dividerColor = useThemeColor(
+    { light: "#d4a574", dark: "#5a4a3a" },
+    "background",
+  );
 
   const pieSize = 240;
   const padding = 50;
@@ -17,27 +23,27 @@ export function PieChecker() {
 
   // Warm rainbow color palette for sectors
   const sectorColors = [
-    '#FF9B9B', // warm pink/red
-    '#FFBD7A', // warm orange
-    '#FFD97A', // warm yellow
-    '#B8C9A3', // warm sage green
-    '#B5ACD4', // warm periwinkle/dusty mauve
-    '#D4A5D4', // warm purple/lavender
+    "#FF9B9B", // warm pink/red
+    "#FFBD7A", // warm orange
+    "#FFD97A", // warm yellow
+    "#B8C9A3", // warm sage green
+    "#B5ACD4", // warm periwinkle/dusty mauve
+    "#D4A5D4", // warm purple/lavender
   ];
 
   // Icons for each sector (placeholder icons for now)
   const sectorIcons = [
-    'heart.fill',
-    'fork.knife',
-    'moon.stars.fill',
-    'figure.walk',
-    'book.fill',
-    'brain.head.profile',
+    "heart.fill",
+    "fork.knife",
+    "moon.stars.fill",
+    "figure.walk",
+    "book.fill",
+    "brain.head.profile",
   ];
 
   // Track which sectors are checked (filled)
   const [checkedSectors, setCheckedSectors] = useState<boolean[]>(
-    Array(sectors).fill(false)
+    Array(sectors).fill(false),
   );
 
   const toggleSector = (index: number) => {
@@ -49,7 +55,7 @@ export function PieChecker() {
   // Generate wavy crust path with smooth inner edge
   const generateCrustPath = () => {
     const waves = 24; // Number of waves around the circle
-    let outerPath = '';
+    let outerPath = "";
 
     // Create outer wavy edge
     for (let i = 0; i < waves; i++) {
@@ -85,7 +91,7 @@ export function PieChecker() {
       Z
     `;
 
-    return outerPath + ' Z ' + innerCircle;
+    return outerPath + " Z " + innerCircle;
   };
 
   const generateSectorPath = (index: number) => {
@@ -117,11 +123,7 @@ export function PieChecker() {
       <View style={styles.pieWrapper}>
         <Svg width={size} height={size}>
           {/* Wavy crust border */}
-          <Path
-            d={generateCrustPath()}
-            fill={crustColor}
-            fillRule="evenodd"
-          />
+          <Path d={generateCrustPath()} fill={crustColor} fillRule="evenodd" />
           {/* Colored sectors */}
           {Array.from({ length: sectors }).map((_, i) => (
             <G key={i}>
@@ -149,11 +151,7 @@ export function PieChecker() {
               ]}
               pointerEvents="none"
             >
-              <IconSymbol
-                name={sectorIcons[i]}
-                size={24}
-                color="#ffffff"
-              />
+              <IconSymbol name={sectorIcons[i]} size={24} color="#ffffff" />
             </View>
           );
         })}
@@ -164,17 +162,16 @@ export function PieChecker() {
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     paddingHorizontal: 20,
-    paddingTop: 0,
-    paddingBottom: 0,
+    marginVertical: -12,
   },
   pieWrapper: {
-    position: 'relative',
+    position: "relative",
   },
   iconContainer: {
-    position: 'absolute',
+    position: "absolute",
     width: 24,
     height: 24,
   },

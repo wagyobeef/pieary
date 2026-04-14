@@ -37,7 +37,7 @@ export function JournalInput({ onSubmit }: JournalInputProps) {
     { light: "#d4a574", dark: "#5a4a3a" },
     "background",
   );
-  const sendButtonColor = text.trim() ? "#007AFF" : "#8e8e93";
+  const sendButtonColor = text.trim() ? "#5a4a3a" : "#8e8e93";
 
   const handleSend = () => {
     if (text.trim()) {
@@ -52,7 +52,12 @@ export function JournalInput({ onSubmit }: JournalInputProps) {
       behavior={Platform.OS === "ios" ? "padding" : "height"}
       keyboardVerticalOffset={0}
     >
-      <View style={[styles.container, { backgroundColor, borderTopColor: borderColor }]}>
+      <View
+        style={[
+          styles.container,
+          { backgroundColor, borderTopColor: borderColor },
+        ]}
+      >
         <View
           style={[
             styles.inputContainer,
@@ -87,7 +92,7 @@ export function JournalInput({ onSubmit }: JournalInputProps) {
 
 const styles = StyleSheet.create({
   container: {
-    paddingHorizontal: 8,
+    paddingHorizontal: 12,
     paddingVertical: 8,
     borderTopWidth: 2,
   },
