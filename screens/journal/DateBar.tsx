@@ -21,18 +21,18 @@ export function DateBar() {
 
   const formatDate = (date: Date) => {
     const months = [
-      "jan",
-      "feb",
-      "mar",
-      "apr",
+      "january",
+      "february",
+      "march",
+      "april",
       "may",
-      "jun",
-      "jul",
-      "aug",
-      "sep",
-      "oct",
-      "nov",
-      "dec",
+      "june",
+      "july",
+      "august",
+      "september",
+      "october",
+      "november",
+      "december",
     ];
     const month = months[date.getMonth()];
     const day = date.getDate();
