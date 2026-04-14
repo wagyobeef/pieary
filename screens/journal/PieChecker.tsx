@@ -168,7 +168,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 20,
     paddingTop: 0,
-    paddingBottom: 10,
+    paddingBottom: 0,
   },
   pieWrapper: {
     position: 'relative',

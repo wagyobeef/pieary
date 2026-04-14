@@ -28,21 +28,19 @@ export default function HomeScreen() {
       <SafeAreaView style={[styles.safeArea, { backgroundColor }]} edges={['top']}>
         <DateBar />
       </SafeAreaView>
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <ThemedView style={[{ flex: 1 }, { backgroundColor }]}>
-          <PieChecker />
-          <ScrollView
-            style={{ backgroundColor }}
-            contentContainerStyle={styles.scrollContent}
-            keyboardDismissMode="on-drag"
-            keyboardShouldPersistTaps="handled"
-          >
-            <ThemedView style={[styles.content, { backgroundColor }]}>
-              <CrumbList crumbs={crumbs} />
-            </ThemedView>
-          </ScrollView>
-        </ThemedView>
-      </TouchableWithoutFeedback>
+      <ScrollView
+        style={{ backgroundColor }}
+        contentContainerStyle={styles.scrollContent}
+        keyboardDismissMode="on-drag"
+        keyboardShouldPersistTaps="handled"
+      >
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <ThemedView style={[styles.content, { backgroundColor }]}>
+            <PieChecker />
+            <CrumbList crumbs={crumbs} />
+          </ThemedView>
+        </TouchableWithoutFeedback>
+      </ScrollView>
       <JournalInput onSubmit={handleAddCrumb} />
     </ThemedView>
   );
