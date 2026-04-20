@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Modal, TouchableOpacity } from 'react-native';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { useThemeColor } from '@/hooks/use-theme-color';
 import { useAreas } from '@/contexts/AreasContext';
+import { colorIndexToHex } from '@/utils/colorIndexToHex';
 
 interface PieInfoModalProps {
   visible: boolean;
@@ -16,23 +17,6 @@ export function PieInfoModal({ visible, onClose }: PieInfoModalProps) {
   const modalBackground = useThemeColor({ light: '#faf6f0', dark: '#2c2c2e' }, 'background');
 
   const { areas, isLoading } = useAreas();
-
-  React.useEffect(() => {
-    if (visible) {
-      console.log('Modal opened, areas:', areas);
-      console.log('Is loading:', isLoading);
-      console.log('Areas length:', areas.length);
-    }
-  }, [visible, areas, isLoading]);
-
-  const sectorColors = [
-    '#FF9B9B', // warm pink/red
-    '#FFBD7A', // warm orange
-    '#FFD97A', // warm yellow
-    '#B8C9A3', // warm sage green
-    '#B5ACD4', // warm periwinkle
-    '#D4A5D4', // warm purple/lavender
-  ];
 
   return (
     <Modal
@@ -60,7 +44,7 @@ export function PieInfoModal({ visible, onClose }: PieInfoModalProps) {
                   <View
                     style={[
                       styles.colorCircle,
-                      { backgroundColor: sectorColors[area.color - 1] }
+                      { backgroundColor: colorIndexToHex(area.color) }
                     ]}
                   >
                     <IconSymbol name={area.icon} size={20} color="#ffffff" />

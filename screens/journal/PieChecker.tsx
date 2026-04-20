@@ -1,17 +1,17 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
+import { useAreas } from "@/contexts/AreasContext";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { colorIndexToHex } from "@/utils/colorIndexToHex";
 import React, { useState } from "react";
-import { StyleSheet, View, TouchableOpacity } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Svg, { G, Path } from "react-native-svg";
 import { PieInfoModal } from "./PieInfoModal";
 
 export function PieChecker() {
   const [showInfoModal, setShowInfoModal] = useState(false);
+  const { areas } = useAreas();
+
   const crustColor = useThemeColor(
-    { light: "#d4a574", dark: "#5a4a3a" },
-    "background",
-  );
-  const dividerColor = useThemeColor(
     { light: "#d4a574", dark: "#5a4a3a" },
     "background",
   );
@@ -21,31 +21,11 @@ export function PieChecker() {
   const size = pieSize + padding * 2;
   const center = size / 2;
   const radius = pieSize / 2;
-  const sectors = 6;
-
-  // Warm rainbow color palette for sectors
-  const sectorColors = [
-    "#FF9B9B", // warm pink/red
-    "#FFBD7A", // warm orange
-    "#FFD97A", // warm yellow
-    "#B8C9A3", // warm sage green
-    "#B5ACD4", // warm periwinkle/dusty mauve
-    "#D4A5D4", // warm purple/lavender
-  ];
-
-  // Icons for each sector (placeholder icons for now)
-  const sectorIcons = [
-    "heart.fill",
-    "fork.knife",
-    "moon.stars.fill",
-    "figure.walk",
-    "book.fill",
-    "brain.head.profile",
-  ];
+  const sectors = areas.length;
 
   // Track which sectors are checked (filled)
   const [checkedSectors, setCheckedSectors] = useState<boolean[]>(
-    Array(sectors).fill(false),
+    Array(areas.length).fill(false),
   );
 
   const toggleSector = (index: number) => {
@@ -139,11 +119,11 @@ export function PieChecker() {
           {/* Wavy crust border */}
           <Path d={generateCrustPath()} fill={crustColor} fillRule="evenodd" />
           {/* Colored sectors */}
-          {Array.from({ length: sectors }).map((_, i) => (
-            <G key={i}>
+          {areas.map((area, i) => (
+            <G key={area.id}>
               <Path
                 d={generateSectorPath(i)}
-                fill={sectorColors[i]}
+                fill={colorIndexToHex(area.color)}
                 opacity={checkedSectors[i] ? 1 : 0.25}
                 onPress={() => toggleSector(i)}
               />
@@ -151,11 +131,11 @@ export function PieChecker() {
           ))}
         </Svg>
         {/* Icons overlay */}
-        {Array.from({ length: sectors }).map((_, i) => {
+        {areas.map((area, i) => {
           const pos = getIconPosition(i);
           return (
             <View
-              key={`icon-${i}`}
+              key={`icon-${area.id}`}
               style={[
                 styles.iconContainer,
                 {
@@ -165,7 +145,7 @@ export function PieChecker() {
               ]}
               pointerEvents="none"
             >
-              <IconSymbol name={sectorIcons[i]} size={24} color="#ffffff" />
+              <IconSymbol name={area.icon} size={24} color="#ffffff" />
             </View>
           );
         })}
