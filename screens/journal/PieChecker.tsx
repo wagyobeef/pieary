@@ -1,10 +1,12 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import React, { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, View, TouchableOpacity } from "react-native";
 import Svg, { G, Path } from "react-native-svg";
+import { PieInfoModal } from "./PieInfoModal";
 
 export function PieChecker() {
+  const [showInfoModal, setShowInfoModal] = useState(false);
   const crustColor = useThemeColor(
     { light: "#d4a574", dark: "#5a4a3a" },
     "background",
@@ -118,9 +120,21 @@ export function PieChecker() {
     return { x, y };
   };
 
+  const iconColor = useThemeColor(
+    { light: "#5a4a3a", dark: "#d4a574" },
+    "text",
+  );
+
   return (
     <View style={styles.container}>
       <View style={styles.pieWrapper}>
+        <TouchableOpacity
+          style={styles.infoButton}
+          onPress={() => setShowInfoModal(true)}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <IconSymbol name="info.circle" size={24} color={iconColor} />
+        </TouchableOpacity>
         <Svg width={size} height={size}>
           {/* Wavy crust border */}
           <Path d={generateCrustPath()} fill={crustColor} fillRule="evenodd" />
@@ -156,6 +170,11 @@ export function PieChecker() {
           );
         })}
       </View>
+
+      <PieInfoModal
+        visible={showInfoModal}
+        onClose={() => setShowInfoModal(false)}
+      />
     </View>
   );
 }
@@ -169,6 +188,13 @@ const styles = StyleSheet.create({
   },
   pieWrapper: {
     position: "relative",
+  },
+  infoButton: {
+    position: "absolute",
+    top: 30,
+    right: 10,
+    zIndex: 10,
+    padding: 4,
   },
   iconContainer: {
     position: "absolute",

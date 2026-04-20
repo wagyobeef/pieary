@@ -1,0 +1,6 @@
+AREAS
+id: INTEGER (primary key)
+color: INTEGER (1 - 6)
+icon: STRING
+title: STRING
+order: INTEGER

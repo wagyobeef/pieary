@@ -1,9 +1,12 @@
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { AreasProvider } from '@/contexts/AreasContext';
+import { initializeDatabase, seedDefaultAreas } from '@/db/schema';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -12,12 +15,29 @@ export const unstable_settings = {
 export default function RootLayout() {
   const colorScheme = useColorScheme();
 
+  useEffect(() => {
+    // Initialize database and seed default areas on app startup
+    try {
+      console.log('Initializing database...');
+      initializeDatabase();
+      console.log('Database initialized');
+
+      console.log('Seeding default areas...');
+      seedDefaultAreas();
+      console.log('Default areas seeded');
+    } catch (error) {
+      console.error('Error initializing database:', error);
+    }
+  }, []);
+
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-      </Stack>
-      <StatusBar style="auto" />
+      <AreasProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        </Stack>
+        <StatusBar style="auto" />
+      </AreasProvider>
     </ThemeProvider>
   );
 }
