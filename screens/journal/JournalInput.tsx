@@ -1,10 +1,13 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useAreas } from "@/contexts/AreasContext";
+import { colorIndexToHex } from "@/utils/colorIndexToHex";
 import React, { useState } from "react";
 import {
   Keyboard,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   TextInput,
   TouchableOpacity,
@@ -17,6 +20,16 @@ interface JournalInputProps {
 
 export function JournalInput({ onSubmit }: JournalInputProps) {
   const [text, setText] = useState("");
+  const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
+  const { areas } = useAreas();
+
+  // Additional crumb icons beyond the area icons
+  const additionalIcons = [
+    "star.fill",
+    "checkmark.circle.fill",
+    "exclamationmark.circle.fill",
+    "questionmark.circle.fill",
+  ];
   const backgroundColor = useThemeColor(
     { light: "#d4a574", dark: "#5a4a3a" },
     "background",
@@ -38,6 +51,7 @@ export function JournalInput({ onSubmit }: JournalInputProps) {
     "background",
   );
   const sendButtonColor = text.trim() ? "#5a4a3a" : "#8e8e93";
+  const darkBrown = "#5a4a3a";
 
   const handleSend = () => {
     if (text.trim()) {
@@ -58,6 +72,52 @@ export function JournalInput({ onSubmit }: JournalInputProps) {
           { backgroundColor, borderTopColor: borderColor },
         ]}
       >
+        {/* Icon Selection Bar */}
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.iconBar}
+          contentContainerStyle={styles.iconBarContent}
+        >
+          {/* Area icons with their colors */}
+          {areas.map((area) => (
+            <TouchableOpacity
+              key={area.id}
+              style={[
+                styles.iconButton,
+                {
+                  backgroundColor: colorIndexToHex(area.color),
+                  opacity: selectedIcon === area.icon ? 1 : 0.6,
+                  borderWidth: selectedIcon === area.icon ? 2 : 0,
+                  borderColor: selectedIcon === area.icon ? darkBrown : "transparent",
+                },
+              ]}
+              onPress={() => setSelectedIcon(selectedIcon === area.icon ? null : area.icon)}
+            >
+              <IconSymbol name={area.icon} size={20} color="#ffffff" />
+            </TouchableOpacity>
+          ))}
+
+          {/* Additional crumb icons */}
+          {additionalIcons.map((icon) => (
+            <TouchableOpacity
+              key={icon}
+              style={[
+                styles.iconButton,
+                {
+                  backgroundColor: "#8e8e93",
+                  opacity: selectedIcon === icon ? 1 : 0.6,
+                  borderWidth: selectedIcon === icon ? 2 : 0,
+                  borderColor: selectedIcon === icon ? darkBrown : "transparent",
+                },
+              ]}
+              onPress={() => setSelectedIcon(selectedIcon === icon ? null : icon)}
+            >
+              <IconSymbol name={icon} size={20} color="#ffffff" />
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
         <View
           style={[
             styles.inputContainer,
@@ -95,6 +155,20 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 8,
     borderTopWidth: 2,
+  },
+  iconBar: {
+    marginBottom: 8,
+  },
+  iconBarContent: {
+    gap: 8,
+    paddingVertical: 4,
+  },
+  iconButton: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
   },
   inputContainer: {
     flexDirection: "row",

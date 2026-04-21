@@ -13,6 +13,18 @@ export const initializeDatabase = () => {
     );
   `);
 
+  db.execSync(`
+    CREATE TABLE IF NOT EXISTS CRUMBS (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      createdAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      areaId INTEGER,
+      icon TEXT,
+      isFavorited BOOLEAN NOT NULL DEFAULT 0,
+      content TEXT NOT NULL,
+      FOREIGN KEY (areaId) REFERENCES AREAS(id)
+    );
+  `);
+
   console.log("Database initialized successfully");
 };
 

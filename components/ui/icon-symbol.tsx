@@ -18,6 +18,19 @@ const MAPPING = {
   calendar: 'calendar-today',
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
+  'heart.fill': 'favorite',
+  'fork.knife': 'restaurant',
+  'moon.stars.fill': 'bedtime',
+  'figure.walk': 'directions-walk',
+  'book.fill': 'book',
+  'brain.head.profile': 'psychology',
+  'info.circle': 'info',
+  'xmark': 'close',
+  'arrow.up.circle.fill': 'send',
+  'star.fill': 'star',
+  'checkmark.circle.fill': 'check-circle',
+  'exclamationmark.circle.fill': 'error',
+  'questionmark.circle.fill': 'help',
 } as IconMapping;
 
 /**
