@@ -14,23 +14,45 @@ type IconSymbolName = keyof typeof MAPPING;
  * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
  */
 const MAPPING = {
-  'house.fill': 'home',
-  calendar: 'calendar-today',
+  // Navigation icons
   'chevron.left.forwardslash.chevron.right': 'code',
   'chevron.right': 'chevron-right',
-  'heart.fill': 'favorite',
-  'fork.knife': 'restaurant',
-  'moon.stars.fill': 'bedtime',
-  'figure.walk': 'directions-walk',
-  'book.fill': 'book',
-  'brain.head.profile': 'psychology',
+  'chevron.left': 'chevron-left',
   'info.circle': 'info',
   'xmark': 'close',
   'arrow.up.circle.fill': 'send',
+
+  // Common icons from iconList
+  'heart.fill': 'favorite',
   'star.fill': 'star',
+  'book.fill': 'book',
+  'figure.walk': 'directions-walk',
+  'fork.knife': 'restaurant',
+  'moon.stars.fill': 'bedtime',
+  'brain.head.profile': 'psychology',
   'checkmark.circle.fill': 'check-circle',
   'exclamationmark.circle.fill': 'error',
   'questionmark.circle.fill': 'help',
+  'house.fill': 'home',
+  'briefcase.fill': 'work',
+  'music.note': 'music-note',
+  'gamecontroller.fill': 'sports-esports',
+  'cart.fill': 'shopping-cart',
+  'airplane': 'flight',
+  'car.fill': 'directions-car',
+  'gift.fill': 'card-giftcard',
+  'bell.fill': 'notifications',
+  'calendar': 'calendar-today',
+  'clock.fill': 'schedule',
+  'envelope.fill': 'email',
+  'phone.fill': 'phone',
+  'camera.fill': 'photo-camera',
+  'film.fill': 'movie',
+  'paintbrush.fill': 'brush',
+  'leaf.fill': 'eco',
+  'drop.fill': 'water-drop',
+  'sun.max.fill': 'wb-sunny',
+  'sparkles': 'auto-awesome',
 } as IconMapping;
 
 /**

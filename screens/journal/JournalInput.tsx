@@ -3,6 +3,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAreas } from "@/contexts/AreasContext";
 import { colorIndexToHex } from "@/utils/colorIndexToHex";
 import { createCrumb } from "@/db/crumbs";
+import { IconPickerModal } from "./IconPickerModal";
 import React, { useState } from "react";
 import {
   Keyboard,
@@ -19,18 +20,30 @@ interface JournalInputProps {
   onSubmit?: () => void;
 }
 
+type SelectionType = "area" | "icon" | null;
+
 export function JournalInput({ onSubmit }: JournalInputProps) {
   const [text, setText] = useState("");
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
+  const [selectionType, setSelectionType] = useState<SelectionType>(null);
+  const [showIconPicker, setShowIconPicker] = useState(false);
   const { areas } = useAreas();
 
-  // Additional crumb icons beyond the area icons
-  const additionalIcons = [
+  // Hot bar icons - default quick access icons
+  const defaultHotBarIcons = [
     "star.fill",
     "checkmark.circle.fill",
     "exclamationmark.circle.fill",
     "questionmark.circle.fill",
   ];
+
+  // If an icon is selected from the modal that's not in the hot bar, temporarily append it
+  const hotBarIcons =
+    selectedIcon &&
+    selectionType === "icon" &&
+    !defaultHotBarIcons.includes(selectedIcon)
+      ? [...defaultHotBarIcons, selectedIcon]
+      : defaultHotBarIcons;
   const backgroundColor = useThemeColor(
     { light: "#d4a574", dark: "#5a4a3a" },
     "background",
@@ -56,12 +69,18 @@ export function JournalInput({ onSubmit }: JournalInputProps) {
 
   const handleSend = () => {
     if (text.trim()) {
-      // Determine areaId if the selected icon matches an area icon
-      const selectedArea = areas.find((area) => area.icon === selectedIcon);
-      const areaId = selectedArea ? selectedArea.id : null;
+      let areaId: number | null = null;
+      let icon: string | null = null;
 
-      // If icon is selected but not from an area, use it as a standalone icon
-      const icon = selectedArea ? null : selectedIcon;
+      // If selection is an area, set areaId
+      if (selectionType === "area") {
+        const selectedArea = areas.find((area) => area.icon === selectedIcon);
+        areaId = selectedArea ? selectedArea.id : null;
+      }
+      // If selection is a generic icon, set icon
+      else if (selectionType === "icon") {
+        icon = selectedIcon;
+      }
 
       // Create the crumb in the database
       createCrumb(areaId, icon, text.trim());
@@ -69,6 +88,7 @@ export function JournalInput({ onSubmit }: JournalInputProps) {
       // Reset form
       setText("");
       setSelectedIcon(null);
+      setSelectionType(null);
       Keyboard.dismiss();
 
       // Call optional callback
@@ -95,43 +115,89 @@ export function JournalInput({ onSubmit }: JournalInputProps) {
           contentContainerStyle={styles.iconBarContent}
         >
           {/* Area icons with their colors */}
-          {areas.map((area) => (
-            <TouchableOpacity
-              key={area.id}
-              style={[
-                styles.iconButton,
-                {
-                  backgroundColor: colorIndexToHex(area.color),
-                  opacity: selectedIcon === area.icon ? 1 : 0.6,
-                  borderWidth: selectedIcon === area.icon ? 2 : 0,
-                  borderColor: selectedIcon === area.icon ? darkBrown : "transparent",
-                },
-              ]}
-              onPress={() => setSelectedIcon(selectedIcon === area.icon ? null : area.icon)}
-            >
-              <IconSymbol name={area.icon} size={20} color="#ffffff" />
-            </TouchableOpacity>
-          ))}
+          {areas.map((area) => {
+            const isSelected = selectedIcon === area.icon && selectionType === "area";
+            return (
+              <TouchableOpacity
+                key={area.id}
+                style={[
+                  styles.iconButton,
+                  {
+                    backgroundColor: colorIndexToHex(area.color),
+                    opacity: isSelected ? 1 : 0.6,
+                    borderWidth: isSelected ? 2 : 0,
+                    borderColor: isSelected ? darkBrown : "transparent",
+                  },
+                ]}
+                onPress={() => {
+                  if (isSelected) {
+                    setSelectedIcon(null);
+                    setSelectionType(null);
+                  } else {
+                    setSelectedIcon(area.icon);
+                    setSelectionType("area");
+                  }
+                }}
+              >
+                <IconSymbol name={area.icon} size={20} color="#ffffff" />
+              </TouchableOpacity>
+            );
+          })}
 
-          {/* Additional crumb icons */}
-          {additionalIcons.map((icon) => (
-            <TouchableOpacity
-              key={icon}
-              style={[
-                styles.iconButton,
-                {
-                  backgroundColor: "#8e8e93",
-                  opacity: selectedIcon === icon ? 1 : 0.6,
-                  borderWidth: selectedIcon === icon ? 2 : 0,
-                  borderColor: selectedIcon === icon ? darkBrown : "transparent",
-                },
-              ]}
-              onPress={() => setSelectedIcon(selectedIcon === icon ? null : icon)}
-            >
-              <IconSymbol name={icon} size={20} color="#ffffff" />
-            </TouchableOpacity>
-          ))}
+          {/* Hot bar icons */}
+          {hotBarIcons.map((icon) => {
+            const isSelected = selectedIcon === icon && selectionType === "icon";
+            return (
+              <TouchableOpacity
+                key={icon}
+                style={[
+                  styles.iconButton,
+                  {
+                    backgroundColor: "#8e8e93",
+                    opacity: isSelected ? 1 : 0.6,
+                    borderWidth: isSelected ? 2 : 0,
+                    borderColor: isSelected ? darkBrown : "transparent",
+                  },
+                ]}
+                onPress={() => {
+                  if (isSelected) {
+                    setSelectedIcon(null);
+                    setSelectionType(null);
+                  } else {
+                    setSelectedIcon(icon);
+                    setSelectionType("icon");
+                  }
+                }}
+              >
+                <IconSymbol name={icon} size={20} color="#ffffff" />
+              </TouchableOpacity>
+            );
+          })}
+
+          {/* More icons chevron button */}
+          <TouchableOpacity
+            style={[
+              styles.iconButton,
+              {
+                backgroundColor: darkBrown,
+                opacity: 0.8,
+              },
+            ]}
+            onPress={() => setShowIconPicker(true)}
+          >
+            <IconSymbol name="chevron.right" size={20} color="#ffffff" />
+          </TouchableOpacity>
         </ScrollView>
+
+        <IconPickerModal
+          visible={showIconPicker}
+          onClose={() => setShowIconPicker(false)}
+          onSelectIcon={(icon) => {
+            setSelectedIcon(icon);
+            setSelectionType("icon");
+          }}
+          selectedIcon={selectionType === "icon" ? selectedIcon : null}
+        />
 
         <View
           style={[

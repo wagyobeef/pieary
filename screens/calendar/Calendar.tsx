@@ -1,5 +1,6 @@
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAreas } from "@/contexts/AreasContext";
+import { useCompletions } from "@/contexts/CompletionsContext";
 import { getAreaCompletionsByDateRange } from "@/db/areaCompletions";
 import { colorIndexToHex } from "@/utils/colorIndexToHex";
 import React, { useState, useEffect } from "react";
@@ -16,6 +17,7 @@ interface CalendarProps {
 
 export function Calendar({ month }: CalendarProps) {
   const { areas } = useAreas();
+  const { completionsVersion } = useCompletions();
   const [dayData, setDayData] = useState<Record<string, DayPieData>>({});
   const backgroundColor = useThemeColor(
     { light: "#f4ead5", dark: "#2a2520" },
@@ -66,7 +68,7 @@ export function Calendar({ month }: CalendarProps) {
     });
 
     setDayData(dataByDate);
-  }, [month, areas]);
+  }, [month, areas, completionsVersion]);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();

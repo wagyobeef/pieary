@@ -1,5 +1,6 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useAreas } from "@/contexts/AreasContext";
+import { useCompletions } from "@/contexts/CompletionsContext";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { colorIndexToHex } from "@/utils/colorIndexToHex";
 import {
@@ -18,6 +19,7 @@ interface PieCheckerProps {
 export function PieChecker({ selectedDate }: PieCheckerProps) {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const { areas } = useAreas();
+  const { notifyCompletionChange } = useCompletions();
 
   const crustColor = useThemeColor(
     { light: "#d4a574", dark: "#5a4a3a" },
@@ -59,6 +61,9 @@ export function PieChecker({ selectedDate }: PieCheckerProps) {
     const newCheckedSectors = [...checkedSectors];
     newCheckedSectors[index] = !newCheckedSectors[index];
     setCheckedSectors(newCheckedSectors);
+
+    // Notify other components that completions changed
+    notifyCompletionChange();
   };
 
   // Generate wavy crust path with smooth inner edge
