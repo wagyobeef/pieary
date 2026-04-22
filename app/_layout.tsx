@@ -37,6 +37,13 @@ export default function RootLayout() {
         <CompletionsProvider>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="crumb-details/[id]"
+              options={{
+                presentation: 'modal',
+                headerShown: false,
+              }}
+            />
           </Stack>
           <StatusBar style="auto" />
         </CompletionsProvider>

@@ -1,6 +1,8 @@
 import { StyleSheet, ScrollView, Keyboard, TouchableWithoutFeedback } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useState, useEffect } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
 
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
@@ -26,6 +28,13 @@ export default function HomeScreen() {
   useEffect(() => {
     loadCrumbs();
   }, [selectedDate]);
+
+  // Reload crumbs when screen comes back into focus
+  useFocusEffect(
+    useCallback(() => {
+      loadCrumbs();
+    }, [selectedDate])
+  );
 
   const handleCrumbSubmit = () => {
     // Reload crumbs after a new one is submitted

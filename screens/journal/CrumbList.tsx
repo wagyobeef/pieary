@@ -3,8 +3,9 @@ import { useAreas } from "@/contexts/AreasContext";
 import { Crumb } from "@/db/crumbs";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { colorIndexToHex } from "@/utils/colorIndexToHex";
-import React, { useState } from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { useRouter } from "expo-router";
+import React, { useState, useEffect } from "react";
+import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 interface CrumbListProps {
   crumbs: Crumb[];
@@ -25,10 +26,16 @@ function CrumbBubble({
   textColor: string;
   areas: any[];
 }) {
+  const router = useRouter();
   const [measuredWidth, setMeasuredWidth] = useState<number | null>(null);
   const bubblePadding = 14;
   const maxWidth =
     (SCREEN_WIDTH - HORIZONTAL_PADDING * 2) * MAX_BUBBLE_WIDTH_PERCENT;
+
+  // Reset width when content changes
+  useEffect(() => {
+    setMeasuredWidth(null);
+  }, [crumb.content]);
 
   // Determine which icon to display and its color
   const getIconInfo = () => {
@@ -54,7 +61,9 @@ function CrumbBubble({
 
   return (
     <View style={styles.crumbContainer}>
-      <View
+      <TouchableOpacity
+        onPress={() => router.push(`/crumb-details/${crumb.id}`)}
+        activeOpacity={0.7}
         style={[
           styles.bubble,
           {
@@ -84,7 +93,7 @@ function CrumbBubble({
         >
           {crumb.content}
         </Text>
-      </View>
+      </TouchableOpacity>
     </View>
   );
 }
