@@ -51,7 +51,7 @@ export default function HomeScreen() {
           </ThemedView>
         </TouchableWithoutFeedback>
       </ScrollView>
-      <JournalInput onSubmit={handleCrumbSubmit} />
+      <JournalInput selectedDate={selectedDate} onSubmit={handleCrumbSubmit} />
     </ThemedView>
   );
 }

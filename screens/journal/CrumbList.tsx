@@ -1,5 +1,8 @@
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useAreas } from "@/contexts/AreasContext";
 import { Crumb } from "@/db/crumbs";
+import { IconSymbol } from "@/components/ui/icon-symbol";
+import { colorIndexToHex } from "@/utils/colorIndexToHex";
 import React, { useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 
@@ -12,18 +15,42 @@ const MAX_BUBBLE_WIDTH_PERCENT = 0.85;
 const HORIZONTAL_PADDING = 24;
 
 function CrumbBubble({
-  text,
+  crumb,
   bubbleColor,
   textColor,
+  areas,
 }: {
-  text: string;
+  crumb: Crumb;
   bubbleColor: string;
   textColor: string;
+  areas: any[];
 }) {
   const [measuredWidth, setMeasuredWidth] = useState<number | null>(null);
   const bubblePadding = 14;
   const maxWidth =
     (SCREEN_WIDTH - HORIZONTAL_PADDING * 2) * MAX_BUBBLE_WIDTH_PERCENT;
+
+  // Determine which icon to display and its color
+  const getIconInfo = () => {
+    if (crumb.areaId) {
+      const area = areas.find((a) => a.id === crumb.areaId);
+      if (area) {
+        return {
+          icon: area.icon,
+          color: colorIndexToHex(area.color),
+        };
+      }
+    } else if (crumb.icon) {
+      return {
+        icon: crumb.icon,
+        color: "#8e8e93", // Gray for generic icons
+      };
+    }
+    return null;
+  };
+
+  const iconInfo = getIconInfo();
+  const hasIcon = iconInfo !== null;
 
   return (
     <View style={styles.crumbContainer}>
@@ -34,20 +61,35 @@ function CrumbBubble({
             backgroundColor: bubbleColor,
             width: measuredWidth || undefined,
             maxWidth: maxWidth,
+            paddingHorizontal: bubblePadding,
           },
         ]}
       >
+        {/* Icon tag (if exists) */}
+        {hasIcon && iconInfo && (
+          <View
+            style={[
+              styles.iconTag,
+              { backgroundColor: iconInfo.color },
+            ]}
+          >
+            <IconSymbol name={iconInfo.icon} size={14} color="#ffffff" />
+          </View>
+        )}
+
         <Text
           style={[styles.crumbText, { color: textColor }]}
           onTextLayout={(e) => {
             if (measuredWidth === null && e.nativeEvent.lines.length > 0) {
               const lineWidths = e.nativeEvent.lines.map((l) => l.width);
               const widestLine = Math.max(...lineWidths);
-              setMeasuredWidth(Math.ceil(widestLine) + bubblePadding * 2);
+              setMeasuredWidth(
+                Math.ceil(widestLine) + bubblePadding * 2
+              );
             }
           }}
         >
-          {text}
+          {crumb.content}
         </Text>
       </View>
     </View>
@@ -55,6 +97,7 @@ function CrumbBubble({
 }
 
 export function CrumbList({ crumbs }: CrumbListProps) {
+  const { areas } = useAreas();
   const bubbleColor = useThemeColor(
     { light: "#faf6f0", dark: "#2c2c2e" },
     "background",
@@ -67,9 +110,10 @@ export function CrumbList({ crumbs }: CrumbListProps) {
   const renderCrumb = ({ item }: { item: Crumb }) => (
     <CrumbBubble
       key={item.id}
-      text={item.content}
+      crumb={item}
       bubbleColor={bubbleColor}
       textColor={textColor}
+      areas={areas}
     />
   );
 
@@ -95,7 +139,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   bubble: {
-    paddingHorizontal: 14,
+    position: "relative",
     paddingVertical: 10,
     borderRadius: 18,
     shadowColor: "#000",
@@ -103,6 +147,16 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 2,
     elevation: 2,
+  },
+  iconTag: {
+    position: "absolute",
+    left: -4, // Negative value to hang off the edge
+    top: -4,  // Negative value to position at top edge
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    justifyContent: "center",
+    alignItems: "center",
   },
   crumbText: {
     fontSize: 16,

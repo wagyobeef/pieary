@@ -32,11 +32,13 @@ export const createCrumb = (
   areaId: number | null,
   icon: string | null,
   content: string,
+  createdAt?: string,
 ): void => {
+  const timestamp = createdAt || new Date().toISOString();
   const insertStmt = db.prepareSync(
-    "INSERT INTO CRUMBS (createdAt, areaId, icon, isFavorited, content) VALUES (datetime('now'), ?, ?, 0, ?)",
+    "INSERT INTO CRUMBS (createdAt, areaId, icon, isFavorited, content) VALUES (?, ?, ?, 0, ?)",
   );
-  insertStmt.executeSync([areaId, icon, content]);
+  insertStmt.executeSync([timestamp, areaId, icon, content]);
   insertStmt.finalizeSync();
 };
 

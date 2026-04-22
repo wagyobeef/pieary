@@ -17,12 +17,13 @@ import {
 } from "react-native";
 
 interface JournalInputProps {
+  selectedDate: Date;
   onSubmit?: () => void;
 }
 
 type SelectionType = "area" | "icon" | null;
 
-export function JournalInput({ onSubmit }: JournalInputProps) {
+export function JournalInput({ selectedDate, onSubmit }: JournalInputProps) {
   const [text, setText] = useState("");
   const [selectedIcon, setSelectedIcon] = useState<string | null>(null);
   const [selectionType, setSelectionType] = useState<SelectionType>(null);
@@ -82,8 +83,9 @@ export function JournalInput({ onSubmit }: JournalInputProps) {
         icon = selectedIcon;
       }
 
-      // Create the crumb in the database
-      createCrumb(areaId, icon, text.trim());
+      // Create the crumb in the database with the selected date
+      const timestamp = selectedDate.toISOString();
+      createCrumb(areaId, icon, text.trim(), timestamp);
 
       // Reset form
       setText("");
