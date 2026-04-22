@@ -1,7 +1,7 @@
-import { useThemeColor } from "@/hooks/use-theme-color";
+import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useAreas } from "@/contexts/AreasContext";
 import { Crumb } from "@/db/crumbs";
-import { IconSymbol } from "@/components/ui/icon-symbol";
+import { useThemeColor } from "@/hooks/use-theme-color";
 import { colorIndexToHex } from "@/utils/colorIndexToHex";
 import React, { useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
@@ -67,12 +67,7 @@ function CrumbBubble({
       >
         {/* Icon tag (if exists) */}
         {hasIcon && iconInfo && (
-          <View
-            style={[
-              styles.iconTag,
-              { backgroundColor: iconInfo.color },
-            ]}
-          >
+          <View style={[styles.iconTag, { backgroundColor: iconInfo.color }]}>
             <IconSymbol name={iconInfo.icon} size={14} color="#ffffff" />
           </View>
         )}
@@ -83,9 +78,7 @@ function CrumbBubble({
             if (measuredWidth === null && e.nativeEvent.lines.length > 0) {
               const lineWidths = e.nativeEvent.lines.map((l) => l.width);
               const widestLine = Math.max(...lineWidths);
-              setMeasuredWidth(
-                Math.ceil(widestLine) + bubblePadding * 2
-              );
+              setMeasuredWidth(Math.ceil(widestLine) + bubblePadding * 2);
             }
           }}
         >
@@ -150,8 +143,8 @@ const styles = StyleSheet.create({
   },
   iconTag: {
     position: "absolute",
-    left: -4, // Negative value to hang off the edge
-    top: -4,  // Negative value to position at top edge
+    left: -6, // Negative value to hang off the edge
+    top: -6, // Negative value to position at top edge
     width: 20,
     height: 20,
     borderRadius: 10,

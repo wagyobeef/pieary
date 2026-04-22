@@ -73,7 +73,7 @@ export function IconPickerModal({
                   ]}
                   onPress={() => handleSelectIcon(icon)}
                 >
-                  <IconSymbol name={icon} size={24} color="#ffffff" />
+                  <IconSymbol name={icon} size={20} color="#ffffff" />
                 </TouchableOpacity>
               ))}
             </View>
@@ -114,9 +114,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   iconButton: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: "center",
     alignItems: "center",
   },
