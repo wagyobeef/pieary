@@ -1,5 +1,8 @@
 import { useThemeColor } from "@/hooks/use-theme-color";
-import React from "react";
+import { useAreas } from "@/contexts/AreasContext";
+import { getAreaCompletionsByDateRange } from "@/db/areaCompletions";
+import { colorIndexToHex } from "@/utils/colorIndexToHex";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Svg, { Circle, Path } from "react-native-svg";
 
@@ -9,10 +12,11 @@ interface DayPieData {
 
 interface CalendarProps {
   month: Date;
-  dayData?: Record<string, DayPieData>;
 }
 
-export function Calendar({ month, dayData = {} }: CalendarProps) {
+export function Calendar({ month }: CalendarProps) {
+  const { areas } = useAreas();
+  const [dayData, setDayData] = useState<Record<string, DayPieData>>({});
   const backgroundColor = useThemeColor(
     { light: "#f4ead5", dark: "#2a2520" },
     "background",
@@ -26,14 +30,43 @@ export function Calendar({ month, dayData = {} }: CalendarProps) {
     "text",
   );
 
-  const sectorColors = [
-    "#FF9B9B", // warm pink/red
-    "#FFBD7A", // warm orange
-    "#FFD97A", // warm yellow
-    "#B8C9A3", // warm sage green
-    "#B5ACD4", // warm periwinkle
-    "#D4A5D4", // warm purple/lavender
-  ];
+  // Load area completions for the entire month
+  useEffect(() => {
+    const year = month.getFullYear();
+    const monthIndex = month.getMonth();
+
+    // Get first and last day of the month
+    const firstDay = new Date(year, monthIndex, 1);
+    const lastDay = new Date(year, monthIndex + 1, 0);
+
+    const startDate = firstDay.toISOString().split('T')[0];
+    const endDate = lastDay.toISOString().split('T')[0];
+
+    // Fetch all completions for this month range
+    const completions = getAreaCompletionsByDateRange(startDate, endDate);
+
+    // Organize completions by date
+    const dataByDate: Record<string, DayPieData> = {};
+
+    completions.forEach((completion) => {
+      const dateKey = completion.completedDate;
+
+      if (!dataByDate[dateKey]) {
+        // Initialize array with false for all areas
+        dataByDate[dateKey] = {
+          completed: Array(areas.length).fill(false),
+        };
+      }
+
+      // Find the index of this area
+      const areaIndex = areas.findIndex((area) => area.id === completion.areaId);
+      if (areaIndex !== -1) {
+        dataByDate[dateKey].completed[areaIndex] = true;
+      }
+    });
+
+    setDayData(dataByDate);
+  }, [month, areas]);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -49,7 +82,9 @@ export function Calendar({ month, dayData = {} }: CalendarProps) {
   const { daysInMonth, startingDayOfWeek } = getDaysInMonth(month);
 
   const renderDayPie = (day: number) => {
-    const dateKey = `${month.getFullYear()}-${month.getMonth() + 1}-${day}`;
+    const year = month.getFullYear();
+    const monthIndex = month.getMonth() + 1;
+    const dateKey = `${year}-${String(monthIndex).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const data = dayData[dateKey];
     const pieSize = 32;
     const center = pieSize / 2;
@@ -104,8 +139,11 @@ export function Calendar({ month, dayData = {} }: CalendarProps) {
           const largeArcFlag = 0;
           const path = `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
 
+          const area = areas[i];
+          const color = area ? colorIndexToHex(area.color) : "#8e8e93";
+
           return (
-            <Path key={i} d={path} fill={sectorColors[i]} opacity={0.9} />
+            <Path key={i} d={path} fill={color} opacity={0.9} />
           );
         })}
       </Svg>

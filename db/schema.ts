@@ -25,6 +25,16 @@ export const initializeDatabase = () => {
     );
   `);
 
+  db.execSync(`
+    CREATE TABLE IF NOT EXISTS AREA_COMPLETIONS (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      completedDate TEXT NOT NULL,
+      areaId INTEGER NOT NULL,
+      FOREIGN KEY (areaId) REFERENCES AREAS(id),
+      UNIQUE(completedDate, areaId)
+    );
+  `);
+
   console.log("Database initialized successfully");
 };
 

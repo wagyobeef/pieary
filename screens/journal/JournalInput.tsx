@@ -2,6 +2,7 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAreas } from "@/contexts/AreasContext";
 import { colorIndexToHex } from "@/utils/colorIndexToHex";
+import { createCrumb } from "@/db/crumbs";
 import React, { useState } from "react";
 import {
   Keyboard,
@@ -15,7 +16,7 @@ import {
 } from "react-native";
 
 interface JournalInputProps {
-  onSubmit: (text: string) => void;
+  onSubmit?: () => void;
 }
 
 export function JournalInput({ onSubmit }: JournalInputProps) {
@@ -55,9 +56,23 @@ export function JournalInput({ onSubmit }: JournalInputProps) {
 
   const handleSend = () => {
     if (text.trim()) {
-      onSubmit(text.trim());
+      // Determine areaId if the selected icon matches an area icon
+      const selectedArea = areas.find((area) => area.icon === selectedIcon);
+      const areaId = selectedArea ? selectedArea.id : null;
+
+      // If icon is selected but not from an area, use it as a standalone icon
+      const icon = selectedArea ? null : selectedIcon;
+
+      // Create the crumb in the database
+      createCrumb(areaId, icon, text.trim());
+
+      // Reset form
       setText("");
+      setSelectedIcon(null);
       Keyboard.dismiss();
+
+      // Call optional callback
+      onSubmit?.();
     }
   };
 

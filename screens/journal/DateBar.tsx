@@ -1,11 +1,15 @@
 import { ThemedText } from "@/components/themed-text";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useThemeColor } from "@/hooks/use-theme-color";
-import React, { useState } from "react";
+import React from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 
-export function DateBar() {
-  const [selectedDate, setSelectedDate] = useState(new Date());
+interface DateBarProps {
+  selectedDate: Date;
+  onDateChange: (date: Date) => void;
+}
+
+export function DateBar({ selectedDate, onDateChange }: DateBarProps) {
   const backgroundColor = useThemeColor(
     { light: "#f4ead5", dark: "#2a2520" },
     "background",
@@ -59,13 +63,13 @@ export function DateBar() {
   const handlePreviousDay = () => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() - 1);
-    setSelectedDate(newDate);
+    onDateChange(newDate);
   };
 
   const handleNextDay = () => {
     const newDate = new Date(selectedDate);
     newDate.setDate(newDate.getDate() + 1);
-    setSelectedDate(newDate);
+    onDateChange(newDate);
   };
 
   const isToday = () => {
@@ -74,7 +78,7 @@ export function DateBar() {
   };
 
   const handleTodayPress = () => {
-    setSelectedDate(new Date());
+    onDateChange(new Date());
   };
 
   return (

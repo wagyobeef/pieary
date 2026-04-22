@@ -1,12 +1,7 @@
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { Crumb } from "@/db/crumbs";
 import React, { useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
-
-export interface Crumb {
-  id: string;
-  text: string;
-  timestamp: Date;
-}
 
 interface CrumbListProps {
   crumbs: Crumb[];
@@ -72,7 +67,7 @@ export function CrumbList({ crumbs }: CrumbListProps) {
   const renderCrumb = ({ item }: { item: Crumb }) => (
     <CrumbBubble
       key={item.id}
-      text={item.text}
+      text={item.content}
       bubbleColor={bubbleColor}
       textColor={textColor}
     />

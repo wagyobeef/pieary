@@ -14,16 +14,6 @@ export default function CalendarScreen() {
   );
   const [currentMonth, setCurrentMonth] = useState(new Date());
 
-  // Mock data - some days with completed sectors
-  const mockDayData = {
-    "2026-4-1": { completed: [true, true, false, false, false, false] },
-    "2026-4-2": { completed: [true, true, true, true, false, false] },
-    "2026-4-5": { completed: [true, true, true, true, true, true] },
-    "2026-4-10": { completed: [true, false, true, false, true, false] },
-    "2026-4-14": { completed: [true, true, true, false, false, false] },
-    "2026-4-20": { completed: [false, false, true, true, false, false] },
-  };
-
   return (
     <ThemedView style={[styles.container, { backgroundColor }]}>
       <SafeAreaView
@@ -32,7 +22,7 @@ export default function CalendarScreen() {
       >
         <MonthBar selectedMonth={currentMonth} onMonthChange={setCurrentMonth} />
         <ScrollView style={{ backgroundColor }}>
-          <Calendar month={currentMonth} dayData={mockDayData} />
+          <Calendar month={currentMonth} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

@@ -2,12 +2,20 @@ import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useAreas } from "@/contexts/AreasContext";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { colorIndexToHex } from "@/utils/colorIndexToHex";
-import React, { useState } from "react";
+import {
+  toggleAreaCompletion,
+  getAreaCompletionsByDate,
+} from "@/db/areaCompletions";
+import React, { useState, useEffect } from "react";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Svg, { G, Path } from "react-native-svg";
 import { PieInfoModal } from "./PieInfoModal";
 
-export function PieChecker() {
+interface PieCheckerProps {
+  selectedDate: Date;
+}
+
+export function PieChecker({ selectedDate }: PieCheckerProps) {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const { areas } = useAreas();
 
@@ -28,7 +36,26 @@ export function PieChecker() {
     Array(areas.length).fill(false),
   );
 
+  // Load completions for the selected date
+  useEffect(() => {
+    const dateString = selectedDate.toISOString().split("T")[0];
+    const completions = getAreaCompletionsByDate(dateString);
+    const completedAreaIds = new Set(completions.map((c) => c.areaId));
+
+    const newCheckedSectors = areas.map((area) =>
+      completedAreaIds.has(area.id),
+    );
+    setCheckedSectors(newCheckedSectors);
+  }, [selectedDate, areas]);
+
   const toggleSector = (index: number) => {
+    const area = areas[index];
+    const dateString = selectedDate.toISOString().split("T")[0];
+
+    // Toggle in database
+    toggleAreaCompletion(dateString, area.id);
+
+    // Update local state
     const newCheckedSectors = [...checkedSectors];
     newCheckedSectors[index] = !newCheckedSectors[index];
     setCheckedSectors(newCheckedSectors);

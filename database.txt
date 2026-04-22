@@ -8,7 +8,12 @@ order: INTEGER
 CRUMBS
 id: INTEGER (primary key)
 createdAt: TIMESTAMP
-category: INTEGER (foreign key, nullable)
+areaId: INTEGER (foreign key, nullable)
 icon: STRING (nullable)
-isFavorited: BOOLEAN
+isFavorited: BOOLEAN (default false)
 content: TEXT
+
+AREA_COMPLETIONS
+id: INTEGER (primary key)
+completedDate: TEXT
+areaId: INTEGER (foreign key)
