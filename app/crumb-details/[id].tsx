@@ -32,6 +32,10 @@ export default function CrumbDetailsScreen() {
     { light: "#faf6f0", dark: "#1c1c1e" },
     "background"
   );
+  const headerTextColor = useThemeColor(
+    { light: "#5a4a3a", dark: "#ffffff" },
+    "text"
+  );
   const textColor = useThemeColor(
     { light: "#3d2f2a", dark: "#ffffff" },
     "text"
@@ -110,11 +114,11 @@ export default function CrumbDetailsScreen() {
   if (!crumb) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor }]}>
-        <View style={styles.header}>
+        <View style={[styles.header, { borderBottomColor: borderColor }]}>
           <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <IconSymbol name="chevron.left" size={24} color={textColor} />
+            <IconSymbol name="chevron.left" size={24} color={headerTextColor} />
           </TouchableOpacity>
-          <Text style={[styles.headerTitle, { color: textColor }]}>
+          <Text style={[styles.headerTitle, { color: headerTextColor }]}>
             not found
           </Text>
           <View style={{ width: 40 }} />
@@ -160,18 +164,16 @@ export default function CrumbDetailsScreen() {
     return `${month} ${day}${getOrdinalSuffix(day)}`;
   };
 
-  const saveIconColor = hasChanges ? textColor : "#8e8e93";
+  const saveIconColor = hasChanges ? headerTextColor : "#8e8e93";
 
   return (
     <SafeAreaView style={[styles.container, { backgroundColor }]}>
       {/* Header */}
       <View style={[styles.header, { borderBottomColor: borderColor }]}>
         <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-          <IconSymbol name="chevron.left" size={24} color={textColor} />
+          <IconSymbol name="chevron.left" size={24} color={headerTextColor} />
         </TouchableOpacity>
-        <Text style={[styles.headerTitle, { color: textColor }]}>
-          {formatDate(crumb.createdAt)}
-        </Text>
+        <View style={styles.headerSpacer} />
         <TouchableOpacity
           onPress={handleSave}
           style={styles.saveButton}
@@ -242,9 +244,8 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "flex-start",
   },
-  headerTitle: {
-    fontSize: 18,
-    fontWeight: "600",
+  headerSpacer: {
+    flex: 1,
   },
   saveButton: {
     width: 40,

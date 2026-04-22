@@ -198,7 +198,15 @@ export function JournalInput({ selectedDate, onSubmit }: JournalInputProps) {
             setSelectedIcon(icon);
             setSelectionType("icon");
           }}
-          selectedIcon={selectionType === "icon" ? selectedIcon : null}
+          onSelectArea={(areaId) => {
+            const area = areas.find((a) => a.id === areaId);
+            if (area) {
+              setSelectedIcon(area.icon);
+              setSelectionType("area");
+            }
+          }}
+          selectedIcon={selectedIcon}
+          selectionType={selectionType}
         />
 
         <View

@@ -1,5 +1,7 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useAreas } from "@/contexts/AreasContext";
+import { colorIndexToHex } from "@/utils/colorIndexToHex";
 import { iconList } from "@/utils/iconList";
 import React from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -9,6 +11,8 @@ interface IconPickerModalProps {
   onClose: () => void;
   onSelectIcon: (icon: string) => void;
   selectedIcon: string | null;
+  selectionType: "area" | "icon" | null;
+  onSelectArea?: (areaId: number) => void;
 }
 
 export function IconPickerModal({
@@ -16,7 +20,10 @@ export function IconPickerModal({
   onClose,
   onSelectIcon,
   selectedIcon,
+  selectionType,
+  onSelectArea,
 }: IconPickerModalProps) {
+  const { areas } = useAreas();
   const textColor = useThemeColor(
     { light: "#5a4a3a", dark: "#ffffff" },
     "text",
@@ -30,6 +37,13 @@ export function IconPickerModal({
 
   const handleSelectIcon = (icon: string) => {
     onSelectIcon(icon);
+    onClose();
+  };
+
+  const handleSelectArea = (areaId: number, icon: string) => {
+    if (onSelectArea) {
+      onSelectArea(areaId);
+    }
     onClose();
   };
 
@@ -57,25 +71,55 @@ export function IconPickerModal({
           </View>
 
           <View style={styles.content}>
+            {/* Area Icons */}
+            <View style={[styles.iconGrid, styles.areaIconGrid]}>
+              {areas.map((area) => {
+                const isSelected = selectedIcon === area.icon && selectionType === "area";
+                return (
+                  <TouchableOpacity
+                    key={`area-${area.id}`}
+                    style={[
+                      styles.iconButton,
+                      {
+                        backgroundColor: colorIndexToHex(area.color),
+                        opacity: isSelected ? 1 : 0.6,
+                        borderWidth: isSelected ? 2 : 0,
+                        borderColor: isSelected ? darkBrown : "transparent",
+                      },
+                    ]}
+                    onPress={() => handleSelectArea(area.id, area.icon)}
+                  >
+                    <IconSymbol name={area.icon} size={20} color="#ffffff" />
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            {/* Divider */}
+            <View style={[styles.divider, { backgroundColor: darkBrown }]} />
+
+            {/* Generic Icons */}
             <View style={styles.iconGrid}>
-              {iconList.map((icon) => (
-                <TouchableOpacity
-                  key={icon}
-                  style={[
-                    styles.iconButton,
-                    {
-                      backgroundColor: "#8e8e93",
-                      opacity: selectedIcon === icon ? 1 : 0.6,
-                      borderWidth: selectedIcon === icon ? 2 : 0,
-                      borderColor:
-                        selectedIcon === icon ? darkBrown : "transparent",
-                    },
-                  ]}
-                  onPress={() => handleSelectIcon(icon)}
-                >
-                  <IconSymbol name={icon} size={20} color="#ffffff" />
-                </TouchableOpacity>
-              ))}
+              {iconList.map((icon) => {
+                const isSelected = selectedIcon === icon && selectionType === "icon";
+                return (
+                  <TouchableOpacity
+                    key={icon}
+                    style={[
+                      styles.iconButton,
+                      {
+                        backgroundColor: "#8e8e93",
+                        opacity: isSelected ? 1 : 0.6,
+                        borderWidth: isSelected ? 2 : 0,
+                        borderColor: isSelected ? darkBrown : "transparent",
+                      },
+                    ]}
+                    onPress={() => handleSelectIcon(icon)}
+                  >
+                    <IconSymbol name={icon} size={20} color="#ffffff" />
+                  </TouchableOpacity>
+                );
+              })}
             </View>
           </View>
         </View>
@@ -112,6 +156,16 @@ const styles = StyleSheet.create({
     flexWrap: "wrap",
     gap: 12,
     justifyContent: "center",
+  },
+  areaIconGrid: {
+    marginBottom: 12,
+  },
+  divider: {
+    height: 1,
+    alignSelf: "center",
+    width: "90%",
+    marginBottom: 12,
+    opacity: 0.3,
   },
   iconButton: {
     width: 36,

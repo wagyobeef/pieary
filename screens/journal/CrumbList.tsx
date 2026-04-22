@@ -32,10 +32,16 @@ function CrumbBubble({
   const maxWidth =
     (SCREEN_WIDTH - HORIZONTAL_PADDING * 2) * MAX_BUBBLE_WIDTH_PERCENT;
 
-  // Reset width when content changes
-  useEffect(() => {
-    setMeasuredWidth(null);
-  }, [crumb.content]);
+  // Always start fresh for each crumb
+  // Don't use useEffect - just reset on every render if the crumb ID changed
+  const [lastCrumbId, setLastCrumbId] = useState<number | null>(null);
+
+  if (lastCrumbId !== crumb.id) {
+    setLastCrumbId(crumb.id);
+    if (measuredWidth !== null) {
+      setMeasuredWidth(null);
+    }
+  }
 
   // Determine which icon to display and its color
   const getIconInfo = () => {
@@ -84,10 +90,13 @@ function CrumbBubble({
         <Text
           style={[styles.crumbText, { color: textColor }]}
           onTextLayout={(e) => {
-            if (measuredWidth === null && e.nativeEvent.lines.length > 0) {
+            if (e.nativeEvent.lines.length > 0) {
               const lineWidths = e.nativeEvent.lines.map((l) => l.width);
               const widestLine = Math.max(...lineWidths);
-              setMeasuredWidth(Math.ceil(widestLine) + bubblePadding * 2);
+              const calculatedWidth = Math.ceil(widestLine) + bubblePadding * 2;
+              if (measuredWidth !== calculatedWidth) {
+                setMeasuredWidth(calculatedWidth);
+              }
             }
           }}
         >
@@ -109,23 +118,21 @@ export function CrumbList({ crumbs }: CrumbListProps) {
     "text",
   );
 
-  const renderCrumb = ({ item }: { item: Crumb }) => (
-    <CrumbBubble
-      key={item.id}
-      crumb={item}
-      bubbleColor={bubbleColor}
-      textColor={textColor}
-      areas={areas}
-    />
-  );
-
   if (crumbs.length === 0) {
     return null;
   }
 
   return (
     <View style={styles.listContainer}>
-      {[...crumbs].reverse().map((item) => renderCrumb({ item }))}
+      {[...crumbs].reverse().map((item) => (
+        <CrumbBubble
+          key={`crumb-${item.id}`}
+          crumb={item}
+          bubbleColor={bubbleColor}
+          textColor={textColor}
+          areas={areas}
+        />
+      ))}
     </View>
   );
 }
