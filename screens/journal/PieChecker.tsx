@@ -8,16 +8,14 @@ import {
   getAreaCompletionsByDate,
 } from "@/db/areaCompletions";
 import React, { useState, useEffect } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Svg, { G, Path } from "react-native-svg";
-import { PieInfoModal } from "./PieInfoModal";
 
 interface PieCheckerProps {
   selectedDate: Date;
 }
 
 export function PieChecker({ selectedDate }: PieCheckerProps) {
-  const [showInfoModal, setShowInfoModal] = useState(false);
   const { areas } = useAreas();
   const { notifyCompletionChange } = useCompletions();
 
@@ -132,21 +130,9 @@ export function PieChecker({ selectedDate }: PieCheckerProps) {
     return { x, y };
   };
 
-  const iconColor = useThemeColor(
-    { light: "#5a4a3a", dark: "#d4a574" },
-    "text",
-  );
-
   return (
     <View style={styles.container}>
       <View style={styles.pieWrapper}>
-        <TouchableOpacity
-          style={styles.infoButton}
-          onPress={() => setShowInfoModal(true)}
-          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-        >
-          <IconSymbol name="info.circle" size={24} color={iconColor} />
-        </TouchableOpacity>
         <Svg width={size} height={size}>
           {/* Wavy crust border */}
           <Path d={generateCrustPath()} fill={crustColor} fillRule="evenodd" />
@@ -182,11 +168,6 @@ export function PieChecker({ selectedDate }: PieCheckerProps) {
           );
         })}
       </View>
-
-      <PieInfoModal
-        visible={showInfoModal}
-        onClose={() => setShowInfoModal(false)}
-      />
     </View>
   );
 }
@@ -200,13 +181,6 @@ const styles = StyleSheet.create({
   },
   pieWrapper: {
     position: "relative",
-  },
-  infoButton: {
-    position: "absolute",
-    top: 30,
-    right: 10,
-    zIndex: 10,
-    padding: 4,
   },
   iconContainer: {
     position: "absolute",

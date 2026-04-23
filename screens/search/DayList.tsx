@@ -1,12 +1,7 @@
 import React from 'react';
 import { View, StyleSheet, ScrollView } from 'react-native';
 import { DaySection } from './DaySection';
-
-interface Crumb {
-  id: string;
-  text: string;
-  timestamp: Date;
-}
+import { Crumb } from '@/db/crumbs';
 
 interface DayGroup {
   date: Date;
