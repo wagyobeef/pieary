@@ -1,6 +1,6 @@
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { useAreas } from "@/contexts/AreasContext";
-import { Crumb as CrumbType } from "@/db/crumbs";
+import { Crumb as CrumbType, toggleFavorite } from "@/db/crumbs";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { colorIndexToHex } from "@/utils/colorIndexToHex";
 import { useRouter } from "expo-router";
@@ -15,13 +15,14 @@ import {
 
 interface CrumbProps {
   crumb: CrumbType;
+  onFavoriteToggle?: () => void;
 }
 
 const SCREEN_WIDTH = Dimensions.get("window").width;
 const MAX_BUBBLE_WIDTH_PERCENT = 0.85;
 const HORIZONTAL_PADDING = 24;
 
-export function Crumb({ crumb }: CrumbProps) {
+export function Crumb({ crumb, onFavoriteToggle }: CrumbProps) {
   const router = useRouter();
   const { areas } = useAreas();
   const [measuredWidth, setMeasuredWidth] = useState<number | null>(null);
@@ -70,44 +71,66 @@ export function Crumb({ crumb }: CrumbProps) {
   const iconInfo = getIconInfo();
   const hasIcon = iconInfo !== null;
 
+  const handleFavoriteToggle = (e: any) => {
+    e.stopPropagation(); // Prevent navigation to details
+    toggleFavorite(crumb.id);
+    onFavoriteToggle?.();
+  };
+
   return (
     <View style={styles.crumbContainer}>
-      <TouchableOpacity
-        onPress={() => router.push(`/crumb-details/${crumb.id}`)}
-        activeOpacity={0.7}
-        style={[
-          styles.bubble,
-          {
-            backgroundColor: bubbleColor,
-            width: measuredWidth || undefined,
-            maxWidth: maxWidth,
-            paddingHorizontal: bubblePadding,
-          },
-        ]}
-      >
-        {/* Icon tag (if exists) */}
-        {hasIcon && iconInfo && (
-          <View style={[styles.iconTag, { backgroundColor: iconInfo.color }]}>
-            <IconSymbol name={iconInfo.icon} size={14} color="#ffffff" />
-          </View>
-        )}
-
-        <Text
-          style={[styles.crumbText, { color: textColor }]}
-          onTextLayout={(e) => {
-            if (e.nativeEvent.lines.length > 0) {
-              const lineWidths = e.nativeEvent.lines.map((l) => l.width);
-              const widestLine = Math.max(...lineWidths);
-              const calculatedWidth = Math.ceil(widestLine) + bubblePadding * 2;
-              if (measuredWidth !== calculatedWidth) {
-                setMeasuredWidth(calculatedWidth);
-              }
-            }
-          }}
+      <View style={styles.crumbRow}>
+        <TouchableOpacity
+          onPress={() => router.push(`/crumb-details/${crumb.id}`)}
+          activeOpacity={0.7}
+          style={[
+            styles.bubble,
+            {
+              backgroundColor: bubbleColor,
+              width: measuredWidth || undefined,
+              maxWidth: maxWidth,
+              paddingHorizontal: bubblePadding,
+            },
+          ]}
         >
-          {crumb.content}
-        </Text>
-      </TouchableOpacity>
+          {/* Icon tag (if exists) */}
+          {hasIcon && iconInfo && (
+            <View style={[styles.iconTag, { backgroundColor: iconInfo.color }]}>
+              <IconSymbol name={iconInfo.icon} size={14} color="#ffffff" />
+            </View>
+          )}
+
+          <Text
+            style={[styles.crumbText, { color: textColor }]}
+            onTextLayout={(e) => {
+              if (e.nativeEvent.lines.length > 0) {
+                const lineWidths = e.nativeEvent.lines.map((l) => l.width);
+                const widestLine = Math.max(...lineWidths);
+                const calculatedWidth = Math.ceil(widestLine) + bubblePadding * 2;
+                if (measuredWidth !== calculatedWidth) {
+                  setMeasuredWidth(calculatedWidth);
+                }
+              }
+            }}
+          >
+            {crumb.content}
+          </Text>
+        </TouchableOpacity>
+
+        {/* Favorite icon */}
+        <TouchableOpacity
+          onPress={handleFavoriteToggle}
+          activeOpacity={0.6}
+          style={styles.favoriteButton}
+          hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+        >
+          <IconSymbol
+            name={crumb.isFavorited ? "star.fill" : "star"}
+            size={24}
+            color="#FFD97A"
+          />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -116,6 +139,11 @@ const styles = StyleSheet.create({
   crumbContainer: {
     marginBottom: 8,
     paddingHorizontal: 24,
+  },
+  crumbRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
   },
   bubble: {
     position: "relative",
@@ -136,6 +164,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     justifyContent: "center",
     alignItems: "center",
+  },
+  favoriteButton: {
+    padding: 4,
   },
   crumbText: {
     fontSize: 16,

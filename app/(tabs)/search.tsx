@@ -1,7 +1,8 @@
 import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useFocusEffect } from '@react-navigation/native';
 
 import { ThemedView } from '@/components/themed-view';
 import { useThemeColor } from '@/hooks/use-theme-color';
@@ -37,11 +38,22 @@ export default function SearchScreen() {
     loadFilters();
   }, []);
 
-  useEffect(() => {
-    // Load all crumbs from the database
+  const loadCrumbs = useCallback(() => {
     const crumbs = getCrumbs();
     setAllCrumbs(crumbs);
   }, []);
+
+  // Load crumbs on mount
+  useEffect(() => {
+    loadCrumbs();
+  }, [loadCrumbs]);
+
+  // Reload crumbs when screen gains focus (e.g., after deleting a crumb)
+  useFocusEffect(
+    useCallback(() => {
+      loadCrumbs();
+    }, [loadCrumbs])
+  );
 
   const handleFilterPress = () => {
     setShowFilterModal(true);

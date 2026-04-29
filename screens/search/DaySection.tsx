@@ -10,7 +10,7 @@ interface DaySectionProps {
 }
 
 export function DaySection({ date, crumbs }: DaySectionProps) {
-  const grayTextColor = useThemeColor({ light: '#8e8e93', dark: '#8e8e93' }, 'text');
+  const darkBrown = '#5a4a3a';
 
   const formatDate = (date: Date) => {
     const months = [
@@ -35,7 +35,7 @@ export function DaySection({ date, crumbs }: DaySectionProps) {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.dateText, { color: grayTextColor }]}>
+      <Text style={[styles.dateText, { color: darkBrown }]}>
         {formatDate(date)}
       </Text>
       <View style={styles.crumbsContainer}>
@@ -54,7 +54,7 @@ const styles = StyleSheet.create({
   dateText: {
     fontSize: 16,
     fontWeight: '600',
-    marginBottom: 4,
+    marginBottom: 12,
     paddingHorizontal: 24,
   },
   crumbsContainer: {

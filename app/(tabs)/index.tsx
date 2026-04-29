@@ -55,7 +55,7 @@ export default function HomeScreen() {
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <ThemedView style={[styles.content, { backgroundColor }]}>
             <PieChecker selectedDate={selectedDate} />
-            <CrumbList crumbs={crumbs} />
+            <CrumbList crumbs={crumbs} onFavoriteToggle={loadCrumbs} />
             {crumbs.length > 0 && <CrumbImage />}
           </ThemedView>
         </TouchableWithoutFeedback>
