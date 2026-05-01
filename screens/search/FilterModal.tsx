@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
+  Animated,
+  Easing,
   Modal,
+  Platform,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
-  Platform,
 } from "react-native";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import { IconSymbol } from "@/components/ui/icon-symbol";
@@ -19,6 +21,8 @@ interface FilterModalProps {
   onApplyFilters: (startDate: Date | null, endDate: Date | null) => void;
 }
 
+const SHEET_OFFSET = 500;
+
 export function FilterModal({
   visible,
   onClose,
@@ -26,16 +30,87 @@ export function FilterModal({
   endDate: initialEndDate,
   onApplyFilters,
 }: FilterModalProps) {
+  const [modalVisible, setModalVisible] = useState(false);
   const [startDate, setStartDate] = useState<Date | null>(initialStartDate);
   const [endDate, setEndDate] = useState<Date | null>(initialEndDate);
-  const [showStartPicker, setShowStartPicker] = useState(false);
-  const [showEndPicker, setShowEndPicker] = useState(false);
+  const [openPicker, setOpenPicker] = useState<"start" | "end" | null>(null);
 
-  // Sync local state with parent state when props change
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const sheetTranslateY = useRef(new Animated.Value(SHEET_OFFSET)).current;
+
   useEffect(() => {
     setStartDate(initialStartDate);
     setEndDate(initialEndDate);
   }, [initialStartDate, initialEndDate]);
+
+  useEffect(() => {
+    if (visible) {
+      overlayOpacity.setValue(0);
+      sheetTranslateY.setValue(SHEET_OFFSET);
+      setModalVisible(true);
+      Animated.parallel([
+        Animated.timing(overlayOpacity, {
+          toValue: 1,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(sheetTranslateY, {
+          toValue: 0,
+          duration: 300,
+          easing: Easing.out(Easing.quad),
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible]);
+
+  const animateClose = (callback: () => void) => {
+    Animated.parallel([
+      Animated.timing(overlayOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
+      }),
+      Animated.timing(sheetTranslateY, {
+        toValue: SHEET_OFFSET,
+        duration: 220,
+        easing: Easing.in(Easing.quad),
+        useNativeDriver: true,
+      }),
+    ]).start(() => {
+      setModalVisible(false);
+      callback();
+    });
+  };
+
+  const handleClose = () => {
+    setOpenPicker(null);
+    animateClose(onClose);
+  };
+
+  const handleApply = () => {
+    setOpenPicker(null);
+    animateClose(() => {
+      onApplyFilters(startDate, endDate);
+      onClose();
+    });
+  };
+
+  const handleClear = () => {
+    setStartDate(null);
+    setEndDate(null);
+    setOpenPicker(null);
+  };
+
+  const handleStartDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === "android") setOpenPicker(null);
+    if (selectedDate) setStartDate(selectedDate);
+  };
+
+  const handleEndDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === "android") setOpenPicker(null);
+    if (selectedDate) setEndDate(selectedDate);
+  };
 
   const backgroundColor = useThemeColor(
     { light: "#faf6f0", dark: "#2c2c2e" },
@@ -53,10 +128,9 @@ export function FilterModal({
     { light: "#e5e5e7", dark: "#3a3a3c" },
     "background"
   );
-  const darkBrown = "#5a4a3a";
 
   const formatDate = (date: Date | null) => {
-    if (!date) return "Not set";
+    if (!date) return "not set";
     return date.toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
@@ -64,68 +138,39 @@ export function FilterModal({
     });
   };
 
-  const handleApply = () => {
-    onApplyFilters(startDate, endDate);
-    onClose();
-  };
-
-  const handleClear = () => {
-    setStartDate(null);
-    setEndDate(null);
-  };
-
-  const handleStartDateChange = (event: any, selectedDate?: Date) => {
-    if (Platform.OS === "android") {
-      setShowStartPicker(false);
-    }
-    if (selectedDate) {
-      setStartDate(selectedDate);
-    }
-  };
-
-  const handleEndDateChange = (event: any, selectedDate?: Date) => {
-    if (Platform.OS === "android") {
-      setShowEndPicker(false);
-    }
-    if (selectedDate) {
-      setEndDate(selectedDate);
-    }
-  };
-
-  const confirmStartDate = () => {
-    setShowStartPicker(false);
-  };
-
-  const confirmEndDate = () => {
-    setShowEndPicker(false);
-  };
-
   return (
     <Modal
-      visible={visible}
-      transparent={true}
-      animationType="slide"
-      onRequestClose={onClose}
+      visible={modalVisible}
+      transparent
+      animationType="none"
+      onRequestClose={handleClose}
     >
-      <TouchableOpacity
-        style={styles.overlay}
-        activeOpacity={1}
-        onPress={onClose}
-      >
-        <TouchableOpacity
-          activeOpacity={1}
-          onPress={(e) => e.stopPropagation()}
-          style={[styles.modalContainer, { backgroundColor }]}
+      <View style={styles.modalRoot}>
+        {/* Fading backdrop */}
+        <Animated.View style={[styles.backdrop, { opacity: overlayOpacity }]}>
+          <TouchableOpacity
+            style={styles.backdropTap}
+            activeOpacity={1}
+            onPress={handleClose}
+          />
+        </Animated.View>
+
+        {/* Sliding sheet */}
+        <Animated.View
+          style={[
+            styles.sheet,
+            { backgroundColor, transform: [{ translateY: sheetTranslateY }] },
+          ]}
         >
           {/* Header */}
           <View style={styles.header}>
             <TouchableOpacity onPress={handleClear}>
               <Text style={[styles.clearButton, { color: secondaryTextColor }]}>
-                Clear
+                clear
               </Text>
             </TouchableOpacity>
             <View style={styles.headerSpacer} />
-            <TouchableOpacity onPress={onClose}>
+            <TouchableOpacity onPress={handleClose}>
               <IconSymbol name="xmark" size={18} color={textColor} />
             </TouchableOpacity>
           </View>
@@ -134,19 +179,17 @@ export function FilterModal({
           <View style={styles.content}>
             {/* Start Date */}
             <View style={styles.filterSection}>
-              <Text style={[styles.label, { color: textColor }]}>Start Date</Text>
+              <Text style={[styles.label, { color: textColor }]}>start date</Text>
               <TouchableOpacity
                 style={[styles.dateButton, { borderColor }]}
-                onPress={() => setShowStartPicker(!showStartPicker)}
+                onPress={() => setOpenPicker(openPicker === "start" ? null : "start")}
               >
                 <Text style={[styles.dateText, { color: textColor }]}>
                   {formatDate(startDate)}
                 </Text>
                 <IconSymbol name="calendar" size={18} color={secondaryTextColor} />
               </TouchableOpacity>
-
-              {/* Start Date Picker */}
-              {showStartPicker && (
+              {openPicker === "start" && (
                 <View style={styles.pickerContainer}>
                   <DateTimePicker
                     value={startDate || new Date()}
@@ -154,31 +197,23 @@ export function FilterModal({
                     display="spinner"
                     onChange={handleStartDateChange}
                   />
-                  <TouchableOpacity
-                    style={[styles.confirmButton, { backgroundColor: darkBrown }]}
-                    onPress={confirmStartDate}
-                  >
-                    <Text style={styles.confirmButtonText}>Confirm</Text>
-                  </TouchableOpacity>
                 </View>
               )}
             </View>
 
             {/* End Date */}
             <View style={styles.filterSection}>
-              <Text style={[styles.label, { color: textColor }]}>End Date</Text>
+              <Text style={[styles.label, { color: textColor }]}>end date</Text>
               <TouchableOpacity
                 style={[styles.dateButton, { borderColor }]}
-                onPress={() => setShowEndPicker(!showEndPicker)}
+                onPress={() => setOpenPicker(openPicker === "end" ? null : "end")}
               >
                 <Text style={[styles.dateText, { color: textColor }]}>
                   {formatDate(endDate)}
                 </Text>
                 <IconSymbol name="calendar" size={18} color={secondaryTextColor} />
               </TouchableOpacity>
-
-              {/* End Date Picker */}
-              {showEndPicker && (
+              {openPicker === "end" && (
                 <View style={styles.pickerContainer}>
                   <DateTimePicker
                     value={endDate || new Date()}
@@ -186,37 +221,36 @@ export function FilterModal({
                     display="spinner"
                     onChange={handleEndDateChange}
                   />
-                  <TouchableOpacity
-                    style={[styles.confirmButton, { backgroundColor: darkBrown }]}
-                    onPress={confirmEndDate}
-                  >
-                    <Text style={styles.confirmButtonText}>Confirm</Text>
-                  </TouchableOpacity>
                 </View>
               )}
             </View>
           </View>
 
-          {/* Apply Button */}
           <TouchableOpacity
-            style={[styles.applyButton, { backgroundColor: darkBrown }]}
+            style={[styles.applyButton, { backgroundColor: "#5a4a3a" }]}
             onPress={handleApply}
           >
-            <Text style={styles.applyButtonText}>Apply Filters</Text>
+            <Text style={styles.applyButtonText}>apply filters</Text>
           </TouchableOpacity>
-        </TouchableOpacity>
-      </TouchableOpacity>
+        </Animated.View>
+      </View>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
-  overlay: {
+  modalRoot: {
     flex: 1,
     justifyContent: "flex-end",
-    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
-  modalContainer: {
+  backdrop: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0,0,0,0.6)",
+  },
+  backdropTap: {
+    flex: 1,
+  },
+  sheet: {
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     padding: 20,
@@ -260,17 +294,6 @@ const styles = StyleSheet.create({
     marginTop: 12,
     borderRadius: 12,
     overflow: "hidden",
-  },
-  confirmButton: {
-    paddingVertical: 12,
-    alignItems: "center",
-    marginTop: 8,
-    borderRadius: 8,
-  },
-  confirmButtonText: {
-    color: "#ffffff",
-    fontSize: 14,
-    fontWeight: "600",
   },
   applyButton: {
     paddingVertical: 16,

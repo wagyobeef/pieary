@@ -82,15 +82,15 @@ export default function CrumbDetailsScreen() {
 
   const handleDelete = () => {
     Alert.alert(
-      "Delete Crumb",
-      "Are you sure you want to delete this crumb? This action cannot be undone.",
+      "delete crumb",
+      "are you sure you want to delete this crumb? this action cannot be undone.",
       [
         {
-          text: "Cancel",
+          text: "cancel",
           style: "cancel",
         },
         {
-          text: "Delete",
+          text: "delete",
           style: "destructive",
           onPress: () => {
             if (crumb) {
