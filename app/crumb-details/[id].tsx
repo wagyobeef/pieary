@@ -208,6 +208,7 @@ export default function CrumbDetailsScreen() {
               onChangeText={handleContentChange}
               placeholder="what's on your mind?"
               placeholderTextColor={placeholderColor}
+              autoFocus
               multiline
               textAlignVertical="top"
             />

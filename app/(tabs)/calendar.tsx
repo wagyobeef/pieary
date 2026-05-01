@@ -6,6 +6,7 @@ import { ThemedView } from "@/components/themed-view";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { Calendar } from "@/screens/calendar/Calendar";
 import { MonthBar } from "@/screens/calendar/MonthBar";
+import { StatsList } from "@/screens/calendar/StatsList";
 
 export default function CalendarScreen() {
   const backgroundColor = useThemeColor(
@@ -23,6 +24,7 @@ export default function CalendarScreen() {
         <MonthBar selectedMonth={currentMonth} onMonthChange={setCurrentMonth} />
         <ScrollView style={{ backgroundColor }}>
           <Calendar month={currentMonth} />
+          <StatsList month={currentMonth} />
         </ScrollView>
       </SafeAreaView>
     </ThemedView>

@@ -138,7 +138,7 @@ export default function SearchScreen() {
     <ThemedView style={[styles.container, { backgroundColor }]}>
       <SafeAreaView style={[styles.safeArea, { backgroundColor }]} edges={['top']}>
         <SearchBar onFilterPress={handleFilterPress} onRandomPress={handleRandomPress} />
-        <DayList dayGroups={dayGroups} />
+        <DayList dayGroups={dayGroups} onFavoriteToggle={loadCrumbs} />
 
         <FilterModal
           visible={showFilterModal}

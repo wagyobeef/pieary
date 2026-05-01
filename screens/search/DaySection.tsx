@@ -7,9 +7,10 @@ import { Crumb as CrumbType } from '@/db/crumbs';
 interface DaySectionProps {
   date: Date;
   crumbs: CrumbType[];
+  onFavoriteToggle?: () => void;
 }
 
-export function DaySection({ date, crumbs }: DaySectionProps) {
+export function DaySection({ date, crumbs, onFavoriteToggle }: DaySectionProps) {
   const darkBrown = '#5a4a3a';
 
   const formatDate = (date: Date) => {
@@ -40,7 +41,7 @@ export function DaySection({ date, crumbs }: DaySectionProps) {
       </Text>
       <View style={styles.crumbsContainer}>
         {crumbs.map((crumb) => (
-          <Crumb key={`crumb-${crumb.id}`} crumb={crumb} />
+          <Crumb key={`crumb-${crumb.id}`} crumb={crumb} onFavoriteToggle={onFavoriteToggle} />
         ))}
       </View>
     </View>

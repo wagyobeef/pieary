@@ -10,9 +10,10 @@ interface DayGroup {
 
 interface DayListProps {
   dayGroups: DayGroup[];
+  onFavoriteToggle?: () => void;
 }
 
-export function DayList({ dayGroups }: DayListProps) {
+export function DayList({ dayGroups, onFavoriteToggle }: DayListProps) {
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
       {dayGroups.map((dayGroup, index) => (
@@ -20,6 +21,7 @@ export function DayList({ dayGroups }: DayListProps) {
           key={`${dayGroup.date.toISOString()}-${index}`}
           date={dayGroup.date}
           crumbs={dayGroup.crumbs}
+          onFavoriteToggle={onFavoriteToggle}
         />
       ))}
     </ScrollView>

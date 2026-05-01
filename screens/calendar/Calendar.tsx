@@ -1,6 +1,7 @@
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAreas } from "@/contexts/AreasContext";
 import { useCompletions } from "@/contexts/CompletionsContext";
+import { useFocusedAreas } from "@/contexts/FocusedAreasContext";
 import { getAreaCompletionsByDateRange } from "@/db/areaCompletions";
 import { colorIndexToHex } from "@/utils/colorIndexToHex";
 import React, { useState, useEffect } from "react";
@@ -18,6 +19,7 @@ interface CalendarProps {
 export function Calendar({ month }: CalendarProps) {
   const { areas } = useAreas();
   const { completionsVersion } = useCompletions();
+  const { isAreaFocused } = useFocusedAreas();
   const [dayData, setDayData] = useState<Record<string, DayPieData>>({});
   const backgroundColor = useThemeColor(
     { light: "#f4ead5", dark: "#2a2520" },
@@ -82,6 +84,7 @@ export function Calendar({ month }: CalendarProps) {
   };
 
   const { daysInMonth, startingDayOfWeek } = getDaysInMonth(month);
+  const today = new Date();
 
   const renderDayPie = (day: number) => {
     const year = month.getFullYear();
@@ -91,62 +94,49 @@ export function Calendar({ month }: CalendarProps) {
     const pieSize = 32;
     const center = pieSize / 2;
     const radius = 12;
-    const sectors = 6;
 
-    if (!data) {
-      // Empty pie - just show outline
-      return (
-        <Svg width={pieSize} height={pieSize}>
-          <Circle
-            cx={center}
-            cy={center}
-            r={radius}
-            fill="transparent"
-            stroke="#d4a574"
-            strokeWidth={1.5}
-            opacity={0.3}
-          />
-        </Svg>
-      );
+    const focusedAreas = areas.filter((a) => isAreaFocused(a.id));
+    const sectors = focusedAreas.length;
+
+    const outline = (
+      <Circle
+        cx={center}
+        cy={center}
+        r={radius}
+        fill="transparent"
+        stroke="#d4a574"
+        strokeWidth={1.5}
+        opacity={0.3}
+      />
+    );
+
+    if (!data || sectors === 0) {
+      return <Svg width={pieSize} height={pieSize}>{outline}</Svg>;
     }
-
-    // Calculate completion percentage
-    const completedCount = data.completed.filter(Boolean).length;
-    const completionPercentage = completedCount / sectors;
 
     return (
       <Svg width={pieSize} height={pieSize}>
-        {/* Background circle */}
-        <Circle
-          cx={center}
-          cy={center}
-          r={radius}
-          fill="transparent"
-          stroke="#d4a574"
-          strokeWidth={1.5}
-          opacity={0.3}
-        />
-        {/* Filled sectors */}
-        {data.completed.map((completed, i) => {
-          if (!completed) return null;
+        {outline}
+        {focusedAreas.map((area, i) => {
+          const areaIndex = areas.findIndex((a) => a.id === area.id);
+          if (!data.completed[areaIndex]) return null;
+
+          const color = colorIndexToHex(area.color);
+
+          if (sectors === 1) {
+            return <Circle key={area.id} cx={center} cy={center} r={radius} fill={color} opacity={0.9} />;
+          }
 
           const startAngle = (i / sectors) * 2 * Math.PI - Math.PI / 2;
           const endAngle = ((i + 1) / sectors) * 2 * Math.PI - Math.PI / 2;
-
           const x1 = center + radius * Math.cos(startAngle);
           const y1 = center + radius * Math.sin(startAngle);
           const x2 = center + radius * Math.cos(endAngle);
           const y2 = center + radius * Math.sin(endAngle);
-
-          const largeArcFlag = 0;
+          const largeArcFlag = (2 * Math.PI) / sectors > Math.PI ? 1 : 0;
           const path = `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
 
-          const area = areas[i];
-          const color = area ? colorIndexToHex(area.color) : "#8e8e93";
-
-          return (
-            <Path key={i} d={path} fill={color} opacity={0.9} />
-          );
+          return <Path key={area.id} d={path} fill={color} opacity={0.9} />;
         })}
       </Svg>
     );
@@ -160,11 +150,17 @@ export function Calendar({ month }: CalendarProps) {
       const dayNumber = i - startingDayOfWeek + 1;
       const isValidDay = dayNumber > 0 && dayNumber <= daysInMonth;
 
+      const isToday =
+        isValidDay &&
+        dayNumber === today.getDate() &&
+        month.getMonth() === today.getMonth() &&
+        month.getFullYear() === today.getFullYear();
+
       days.push(
         <View key={i} style={styles.dayCell}>
           {isValidDay ? (
             <>
-              <Text style={[styles.dayNumber, { color: textColor }]}>
+              <Text style={[styles.dayNumber, { color: textColor, fontWeight: isToday ? "700" : "500" }]}>
                 {dayNumber}
               </Text>
               {renderDayPie(dayNumber)}

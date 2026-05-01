@@ -93,8 +93,7 @@ export function DateBar({ selectedDate, onDateChange }: DateBarProps) {
 
       <TouchableOpacity onPress={handleTodayPress} disabled={isToday()}>
         <ThemedText
-          style={[styles.dateText, { color: textColor }]}
-          type="defaultSemiBold"
+          style={[styles.dateText, { color: textColor, fontWeight: isToday() ? "800" : "600" }]}
         >
           {formatDate(selectedDate)}
         </ThemedText>

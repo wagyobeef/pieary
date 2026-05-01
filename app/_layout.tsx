@@ -7,6 +7,7 @@ import 'react-native-reanimated';
 import { useColorScheme } from '@/hooks/use-color-scheme';
 import { AreasProvider } from '@/contexts/AreasContext';
 import { CompletionsProvider } from '@/contexts/CompletionsContext';
+import { FocusedAreasProvider } from '@/contexts/FocusedAreasContext';
 import { initializeDatabase, seedDefaultAreas } from '@/db/schema';
 
 export const unstable_settings = {
@@ -35,6 +36,7 @@ export default function RootLayout() {
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AreasProvider>
         <CompletionsProvider>
+          <FocusedAreasProvider>
           <Stack>
             <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
             <Stack.Screen
@@ -46,6 +48,7 @@ export default function RootLayout() {
             />
           </Stack>
           <StatusBar style="auto" />
+          </FocusedAreasProvider>
         </CompletionsProvider>
       </AreasProvider>
     </ThemeProvider>
