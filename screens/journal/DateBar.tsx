@@ -25,39 +25,21 @@ export function DateBar({ selectedDate, onDateChange }: DateBarProps) {
 
   const formatDate = (date: Date) => {
     const months = [
-      "january",
-      "february",
-      "march",
-      "april",
-      "may",
-      "june",
-      "july",
-      "august",
-      "september",
-      "october",
-      "november",
-      "december",
+      "january", "february", "march", "april",
+      "may", "june", "july", "august",
+      "september", "october", "november", "december",
     ];
-    const month = months[date.getMonth()];
     const day = date.getDate();
-    const year = String(date.getFullYear()).slice(-2);
-
-    // Add ordinal suffix (st, nd, rd, th)
-    const getOrdinalSuffix = (day: number) => {
-      if (day > 3 && day < 21) return "th";
-      switch (day % 10) {
-        case 1:
-          return "st";
-        case 2:
-          return "nd";
-        case 3:
-          return "rd";
-        default:
-          return "th";
+    const getOrdinalSuffix = (d: number) => {
+      if (d > 3 && d < 21) return "th";
+      switch (d % 10) {
+        case 1: return "st";
+        case 2: return "nd";
+        case 3: return "rd";
+        default: return "th";
       }
     };
-
-    return `${month} ${day}${getOrdinalSuffix(day)}`;
+    return `${months[date.getMonth()]} ${day}${getOrdinalSuffix(day)}`;
   };
 
   const handlePreviousDay = () => {
