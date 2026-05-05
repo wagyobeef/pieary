@@ -1,7 +1,6 @@
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAreas } from "@/contexts/AreasContext";
 import { useCompletions } from "@/contexts/CompletionsContext";
-import { useFocusedAreas } from "@/contexts/FocusedAreasContext";
 import { getAreaCompletionsByDateRange } from "@/db/areaCompletions";
 import { colorIndexToHex } from "@/utils/colorIndexToHex";
 import React, { useState, useEffect } from "react";
@@ -19,7 +18,6 @@ interface CalendarProps {
 export function Calendar({ month }: CalendarProps) {
   const { areas } = useAreas();
   const { completionsVersion } = useCompletions();
-  const { isAreaFocused } = useFocusedAreas();
   const [dayData, setDayData] = useState<Record<string, DayPieData>>({});
   const backgroundColor = useThemeColor(
     { light: "#f4ead5", dark: "#2a2520" },
@@ -95,8 +93,7 @@ export function Calendar({ month }: CalendarProps) {
     const center = pieSize / 2;
     const radius = 12;
 
-    const focusedAreas = areas.filter((a) => isAreaFocused(a.id));
-    const sectors = focusedAreas.length;
+    const sectors = areas.length;
 
     const outline = (
       <Circle
@@ -110,33 +107,27 @@ export function Calendar({ month }: CalendarProps) {
       />
     );
 
-    if (!data || sectors === 0) {
+    if (!data) {
       return <Svg width={pieSize} height={pieSize}>{outline}</Svg>;
     }
 
     return (
       <Svg width={pieSize} height={pieSize}>
         {outline}
-        {focusedAreas.map((area, i) => {
-          const areaIndex = areas.findIndex((a) => a.id === area.id);
-          if (!data.completed[areaIndex]) return null;
+        {data.completed.map((completed, i) => {
+          if (!completed) return null;
 
-          const color = colorIndexToHex(area.color);
-
-          if (sectors === 1) {
-            return <Circle key={area.id} cx={center} cy={center} r={radius} fill={color} opacity={0.9} />;
-          }
-
+          const area = areas[i];
+          const color = area ? colorIndexToHex(area.color) : "#8e8e93";
           const startAngle = (i / sectors) * 2 * Math.PI - Math.PI / 2;
           const endAngle = ((i + 1) / sectors) * 2 * Math.PI - Math.PI / 2;
           const x1 = center + radius * Math.cos(startAngle);
           const y1 = center + radius * Math.sin(startAngle);
           const x2 = center + radius * Math.cos(endAngle);
           const y2 = center + radius * Math.sin(endAngle);
-          const largeArcFlag = (2 * Math.PI) / sectors > Math.PI ? 1 : 0;
-          const path = `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 ${largeArcFlag} 1 ${x2} ${y2} Z`;
+          const path = `M ${center} ${center} L ${x1} ${y1} A ${radius} ${radius} 0 0 1 ${x2} ${y2} Z`;
 
-          return <Path key={area.id} d={path} fill={color} opacity={0.9} />;
+          return <Path key={i} d={path} fill={color} opacity={0.9} />;
         })}
       </Svg>
     );
